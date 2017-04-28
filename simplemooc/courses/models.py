@@ -70,3 +70,36 @@ class Enrollment(models.Model):
         verbose_name='Inscricao'
         verbose_name_plural ='Inscricoes'
         unique_together =(('user','course'),)
+
+
+class Announcement(models.Model):
+    course = models.ForeignKey(Course, verbose_name='Curso', related_name='announcements')
+    title = models.CharField('Titulo', max_length=100)
+    content = models.TextField('Conteudo')
+
+    created_at = models.DateTimeField('Criado em', auto_now_add=True)
+    update_at = models.DateTimeField('Atualizado em', auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name= 'Anuncio'
+        verbose_name_plural = 'Anuncios'
+        ordering = ['-created_at']
+
+
+class Comment(models.Model):
+
+    announcement = models.ForeignKey(Announcement, verbose_name='Anuncio', related_name='comments'
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name='usuario')
+    comment = models.TextField('Comentario')
+
+    created_at = models.DateTimeField('Criado em', auto_now_add=True)
+    updated_at = models.DateTimeField('Atualizado em', auto_now=True)
+
+    class Meta:
+        verbose_name = 'Comentario'
+        verbose_name_plural = 'Comentarios'
+        ordering = ['created_at']
