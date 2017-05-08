@@ -3,7 +3,7 @@
 {% block breadcrumb %}
     {{ block.super }}
     <li>/</li>
-    <li><a href="{% url 'courses:annoucements' course.slug %}">{{ course }}</a></li>
+    <li><a href="{% url 'courses:announcements' course.slug %}">{{ course }}</a></li>
 {% endblock %}
 
 {% block menu_options %}

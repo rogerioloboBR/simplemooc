@@ -6,7 +6,7 @@
     <h3>Você deseja realmente cancelar a inscrição deste curso?</h3>
     <div class="pure-controls">
         <button type="submit" class="pure-button pure-button-primary">Confirmar</button>
-        <a href="{% url 'courses:annoucements' enrollment.course.slug %}" class="pure-button">Voltar</a>
+        <a href="{% url 'courses:announcements' course.slug %}" class="pure-button">Voltar</a>
     </div>
 </form>
 {% endblock %}

@@ -1,6 +1,8 @@
 from django.db import models
-
 from django.conf import settings
+from django.utils import timezone
+
+from simplemooc.core.mail import send_mail_template
 
 
 class CourseManager(models.Manager):
@@ -31,10 +33,50 @@ class Course(models.Model):
     @models.permalink
     def get_absolute_url(self):
         return ('courses:details',(),{'slug':self.slug})
+
     class Meta:
         verbose_name = 'Curso'
         verbose_name_plural = 'Cursos'
         ordering = ['name']
+
+
+class Lesson(models.Model):
+    name = models.CharField('Nome', max_length=100 )
+    description = models.TextField('Descricao', blank=True)
+    number = models.IntegerField('Numero(ordem)', blank=True, default=0)
+    release_date = models.DateField('Data de Lirecao', blank=True, null=True)
+
+    course = models.ForeignKey(Course, verbose_name='Curso', related_name='lessons')
+
+    created_at = models.DateTimeField('Criado em', auto_now_add=True)
+    updated_at = models.DateTimeField('Atualizado em', auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name ='Aula'
+        verbose_name_plural= 'Aulas'
+        ordering = ['number']
+
+
+class Material(models.Model):
+    name = models.CharField('Nome', max_length=100)
+    embedded = models.TextField('Video embedded', blank=True)
+    file = models.FileField(upload_to='lessons/materials', blank=True, null=True)
+
+    lesson = models.ForeignKey(Lesson, verbose_name='aula', related_name='materials')
+
+    def is_embedded(self):
+        return bool(self.embedded)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Material'
+        verbose_name_plural = 'Materiais'
+
 
 class Enrollment(models.Model):
 
@@ -103,3 +145,20 @@ class Comment(models.Model):
         verbose_name = 'Comentario'
         verbose_name_plural = 'Comentarios'
         ordering = ['created_at']
+
+
+def post_save_announcement(instance, created, **kwargs):
+    if created:
+        subject = instance.title
+        context = {
+            'announcement': instance
+        }
+        template_name = 'courses/announcement_mail.html'
+        enrollments = Enrollment.objects.filter(
+            course=instance.course, status=1
+        )
+        for enrollment in enrollments:
+            recipient_list = [enrollment.user.email]
+            send_mail_template(subject, template_name, context, recipient_list)
+
+
