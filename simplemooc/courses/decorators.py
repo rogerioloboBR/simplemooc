@@ -3,6 +3,7 @@ from django.contrib import messages
 
 from .models import Course, Enrollment
 
+
 def enrollment_required(view_func):
     def _wrapper(request, *args, **kwargs):
         slug = kwargs['slug']

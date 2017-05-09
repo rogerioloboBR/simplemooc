@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Course, Enrollment
+from .models import Course, Enrollment, Lesson, Material
 from .forms import ContactCourse, CommentForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -98,3 +98,53 @@ def show_announcement(request, slug, pk):
     }
     return render(request, template, context)
 
+
+@login_required
+@enrollment_required
+def lessons(request, slug):
+    course = request.course
+    template = 'courses/lessons.html'
+    lessons = course.release_lessons()
+    if request.user.is_staff:
+        lessons = course.lessons.all()
+    context = {
+        'course': course,
+        'lessons': lessons
+    }
+    return render(request, template, context)
+
+
+@login_required
+@enrollment_required
+def lesson(request, slug, pk):
+    course = request.course
+    lesson= get_object_or_404(Lesson, pk=pk, course=course)
+    if not request.user.is_staff and not lesson.is_available():
+        messages.error(request,'Esta aula nao esta disponivel')
+        return redirect('courses:lessons',slug=course.slug)
+    template = 'courses/lesson.html'
+    context = {
+        'course': course,
+        'lesson': lesson
+    }
+    return render(request, template, context)
+
+
+@login_required
+@enrollment_required
+def material(request, slug, pk):
+    course = request.course
+    material = get_object_or_404(Material, pk=pk, lesson__course=course)
+    lesson = material.lesson
+    if not request.user.is_staff and not lesson.is_available():
+        messages.error(request, 'Este material nao esta disponivel')
+        return redirect('courses:lesson', slug=course.slug, pk=lesson.pk)
+    if not material.is_embedded():
+        return redirect(material.file.url)
+    template = 'courses/material.html'
+    context = {
+        'course': course,
+        'lesson': lesson,
+        'material': material,
+    }
+    return render(request, template, context)
