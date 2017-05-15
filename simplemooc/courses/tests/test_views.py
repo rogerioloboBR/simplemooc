@@ -22,11 +22,3 @@ class ContactCourseTestCase(TestCase):
         response = client.post(path, data)
         self.assertFormError(response, 'form', 'email', 'Este campo e obrigatorio.')
         self.assertFormError(response, 'form', 'message', 'Este campo e obrigatorio.')
-
-    def test_contact_form_success(self):
-        data = {'name': 'Fulano de Tal', 'email': 'admin@admin.com', 'message': 'Oi'}
-        client = Client()
-        path = reverse('courses:details', args=[self.course.slug])
-        response = client.post(path, data)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, [settings.CONTACT_EMAIL])
