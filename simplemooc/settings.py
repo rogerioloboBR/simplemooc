@@ -107,6 +107,7 @@ LOGOUT_URL = 'accounts:logout'
 AUTH_USER_MODEL = 'accounts.User'
 
 
+
 #Heroku settings
 import dj_database_url
 DATABASES['default'] = dj_database_url.config()
