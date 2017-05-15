@@ -3,3 +3,11 @@ __pycache__
 myvenv
 db.sqlite3
 .DS_Store
+staticfiles
+.idea/vcs.xml
+admin/
+css/
+font/
+fonts/
+img/
+simplemooc/media/lessons/
